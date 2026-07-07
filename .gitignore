@@ -1,0 +1,16 @@
+# 1. NEVER upload secrets
+.env
+
+# 2. Ignore Python compiled cache files
+pycache/
+*.pyc
+*.pyo
+
+# 3. Ignore virtual environments (if you use them)
+venv/
+.venv/
+env/
+
+# 4. Ignore IDE specific files
+.vscode/
+.idea/

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wellness Assistant</title>
   <link rel="stylesheet" href="/static/styles.css">
+  <!-- SocketIO Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
 </head>
 <body>
@@ -13,49 +14,60 @@
       <h1>Welcome to Your Wellness Assistant!</h1>
       <p>Type your medical question below to get expert advice.</p>
     </header>
+    
     <main>
       <form id="chat-form">
         <textarea id="user-input" placeholder="Type your medical question here..." required></textarea>
         <button type="submit">Get Advice</button>
       </form>
+      
       <div id="response-container" class="reply-box">
         <h2>Wellness's Reply:</h2>
-        <p id="response-text">Your response will appear here...</p>
+        <!-- Changed this to a div so we can easily inject <p> tags into it -->
+        <div id="response-text">
+            <p>Your response will appear here...</p>
+        </div>
       </div>
     </main>
   </div>
   
-</body>
-</html>
-
-
+  <!-- ✅ SCRIPT MOVED INSIDE THE BODY TAG -->
   <script>
     const socket = io();
   
     document.getElementById('chat-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      const userInput = document.getElementById('user-input').value;
-      socket.emit('message', userInput);
+      const userInput = document.getElementById('user-input');
+      const message = userInput.value;
+      
+      // 1. Show a loading state
+      document.getElementById('response-text').innerHTML = '<p><em>Assistant is thinking...</em></p>';
+      
+      // 2. Send message to backend
+      socket.emit('message', message);
+      
+      // 3. Clear the textarea
+      userInput.value = '';
     });
   
     socket.on('response', function(response) {
-      // Clear the previous content
       const responseContainer = document.getElementById('response-text');
-      responseContainer.innerHTML = ""; 
-  
+      responseContainer.innerHTML = ""; // Clear the "thinking" text
+
       // Split the response into paragraphs by double newlines or periods
       const paragraphs = response.split(/\n\n|\.\s+/);
-  
+
       // Append each paragraph as a new line
       paragraphs.forEach(paragraph => {
         if (paragraph.trim()) {
           const p = document.createElement('p');
           p.textContent = paragraph.trim();
+          // Add some margin to the paragraphs so they don't squish together
+          p.style.marginBottom = '1rem'; 
           responseContainer.appendChild(p);
         }
       });
     });
   </script>
-  
 </body>
 </html>
